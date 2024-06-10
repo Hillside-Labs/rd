@@ -58,11 +58,14 @@ func GetHosts() ([]Host, error) {
 	hosts := []Host{}
 
 	for _, value := range tf.Values.RootModule.Resources {
-		hosts = append(hosts, Host{
-			Name:      value.Values.Name,
-			IP:        value.Values.IP,
-			PrivateIP: value.Values.PrivateIP,
-		})
+		// Only add a host if it has an address.
+		if value.Values.IP != "" && value.Values.PrivateIP != "" {
+			hosts = append(hosts, Host{
+				Name:      value.Values.Name,
+				IP:        value.Values.IP,
+				PrivateIP: value.Values.PrivateIP,
+			})
+		}
 	}
 
 	return hosts, nil
@@ -176,6 +179,35 @@ func main() {
 		Usage: "rd stands for remote docker",
 		Commands: []*cli.Command{
 			{
+				Name: "bootstrap",
+				Flags: []cli.Flag{
+					nameFlag, ipFlag, privateFlag},
+				Action: func(c *cli.Context) error {
+					fname, err := BoostrapScript()
+					if err != nil {
+						return err
+					}
+
+					defer os.Remove(fname)
+
+					targets, err := GetTargetsWithFlags(c)
+
+					if err != nil {
+						return err
+					}
+
+					for _, t := range targets {
+						SyncFiles(t, fname, false)
+						ExecuteCmd(t, "chmod", "+x", "bootstrap.sh")
+
+						// TODO: Might need sudo here...
+						ExecuteCmd(t, "./bootstrap.sh")
+					}
+
+					return nil
+				},
+			},
+			{
 				Name: "sync",
 				Flags: []cli.Flag{
 					nameFlag, ipFlag, privateFlag,
@@ -256,6 +288,22 @@ func main() {
 
 					return err
 
+				},
+			},
+			{
+				Name:  "hosts",
+				Flags: []cli.Flag{nameFlag, ipFlag, privateFlag},
+				Action: func(c *cli.Context) error {
+					targets, err := GetTargetsWithFlags(c)
+					if err != nil {
+						return err
+					}
+
+					for _, t := range targets {
+						fmt.Println(t.Name, t.IP, t.PrivateIP)
+					}
+
+					return nil
 				},
 			},
 		},
