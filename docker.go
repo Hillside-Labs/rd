@@ -2,8 +2,35 @@ package main
 
 import "github.com/urfave/cli/v2"
 
+var dockerStatusCmd = []string{"docker", "compose", "ps"}
+
 func addDockerCmds(cmd []*cli.Command) []*cli.Command {
 	cmd = append(cmd, []*cli.Command{
+		{
+			Name:  "start",
+			Flags: []cli.Flag{nameFlag, ipFlag, privateFlag},
+			Action: func(c *cli.Context) error {
+				targets, err := GetTargetsWithFlags(c)
+				if err != nil {
+					return err
+				}
+
+				args := []string{
+					"docker", "compose", "up", "-d",
+				}
+				if c.Args().First() != "" {
+					args = append(args, c.Args().First())
+				}
+
+				for _, t := range targets {
+					ExecuteCmd(t, args...)
+					ExecuteCmd(t, dockerStatusCmd...)
+				}
+
+				return nil
+
+			},
+		},
 		{
 			Name:  "pull",
 			Flags: []cli.Flag{nameFlag, ipFlag, privateFlag},
@@ -166,7 +193,7 @@ func addDockerCmds(cmd []*cli.Command) []*cli.Command {
 				if err != nil {
 					return err
 				}
-				args := []string{"docker", "logs"}
+				args := []string{"docker", "compose", "logs", "-f"}
 				svc := c.Args().First()
 				if svc != "" {
 					args = append(args, svc)

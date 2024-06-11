@@ -224,8 +224,13 @@ func main() {
 						return err
 					}
 
+					fn := c.Args().First()
+					if fn == "" {
+						fn = "docker-compose.yml"
+					}
+
 					for _, t := range targets {
-						SyncFiles(t, c.Args().First(), c.Bool("recursive"))
+						SyncFiles(t, fn, c.Bool("recursive"))
 					}
 					return nil
 				},
