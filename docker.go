@@ -8,6 +8,7 @@ func addDockerCmds(cmd []*cli.Command) []*cli.Command {
 	cmd = append(cmd, []*cli.Command{
 		{
 			Name:  "start",
+			Usage: "Starts the compose processes.",
 			Flags: []cli.Flag{nameFlag, ipFlag, privateFlag},
 			Action: func(c *cli.Context) error {
 				targets, err := GetTargetsWithFlags(c)
@@ -32,55 +33,9 @@ func addDockerCmds(cmd []*cli.Command) []*cli.Command {
 			},
 		},
 		{
-			Name:  "pull",
-			Flags: []cli.Flag{nameFlag, ipFlag, privateFlag},
-			Action: func(c *cli.Context) error {
-				targets, err := GetTargetsWithFlags(c)
-				if err != nil {
-					return err
-				}
-
-				args := []string{
-					"docker", "compose", "pull",
-				}
-				if c.Args().First() != "" {
-					args = append(args, c.Args().First())
-				}
-
-				for _, t := range targets {
-					ExecuteCmd(t, args...)
-				}
-
-				return nil
-			},
-		},
-		{
-			Name:  "create",
-			Flags: []cli.Flag{nameFlag, ipFlag, privateFlag},
-			Action: func(c *cli.Context) error {
-				targets, err := GetTargetsWithFlags(c)
-				if err != nil {
-					return err
-				}
-
-				args := []string{
-					"docker", "compose", "pull",
-				}
-				if c.Args().First() != "" {
-					args = append(args, c.Args().First())
-				}
-
-				for _, t := range targets {
-					ExecuteCmd(t, args...)
-				}
-
-				return nil
-			},
-		},
-
-		{
-			Name:  "update",
-			Flags: []cli.Flag{nameFlag, ipFlag, privateFlag},
+			Name:    "update",
+			Aliases: []string{"pull"},
+			Flags:   []cli.Flag{nameFlag, ipFlag, privateFlag},
 			Action: func(c *cli.Context) error {
 				targets, err := GetTargetsWithFlags(c)
 				if err != nil {
@@ -108,6 +63,7 @@ func addDockerCmds(cmd []*cli.Command) []*cli.Command {
 
 		{
 			Name:  "restart",
+			Usage: "Restart the compose processes.",
 			Flags: []cli.Flag{nameFlag, ipFlag, privateFlag},
 			Action: func(c *cli.Context) error {
 				targets, err := GetTargetsWithFlags(c)
@@ -136,6 +92,7 @@ func addDockerCmds(cmd []*cli.Command) []*cli.Command {
 
 		{
 			Name:  "reboot",
+			Usage: "Stop, update, and start the compose containers.",
 			Flags: []cli.Flag{nameFlag, ipFlag, privateFlag},
 			Action: func(c *cli.Context) error {
 				targets, err := GetTargetsWithFlags(c)
@@ -187,6 +144,7 @@ func addDockerCmds(cmd []*cli.Command) []*cli.Command {
 		},
 		{
 			Name:  "logs",
+			Usage: "Tail the docker logs.",
 			Flags: []cli.Flag{nameFlag, ipFlag, privateFlag},
 			Action: func(c *cli.Context) error {
 				targets, err := GetTargetsWithFlags(c)

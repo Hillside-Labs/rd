@@ -179,7 +179,8 @@ func main() {
 		Usage: "rd stands for remote docker",
 		Commands: []*cli.Command{
 			{
-				Name: "bootstrap",
+				Name:  "bootstrap",
+				Usage: "Setup a host with docker for rd",
 				Flags: []cli.Flag{
 					nameFlag, ipFlag, privateFlag},
 				Action: func(c *cli.Context) error {
@@ -208,7 +209,8 @@ func main() {
 				},
 			},
 			{
-				Name: "sync",
+				Name:  "sync",
+				Usage: "Copy files to the remote host. If no file arguments are given, it copies the docker-compose.yml.",
 				Flags: []cli.Flag{
 					nameFlag, ipFlag, privateFlag,
 					&cli.BoolFlag{
@@ -237,6 +239,7 @@ func main() {
 			},
 			{
 				Name:  "run",
+				Usage: "Run a command on the remote host.",
 				Flags: []cli.Flag{nameFlag, ipFlag, privateFlag},
 				Action: func(c *cli.Context) error {
 					targets, err := GetTargetsWithFlags(c)
@@ -255,7 +258,8 @@ func main() {
 				},
 			},
 			{
-				Name: "config",
+				Name:  "config",
+				Usage: "Get configuration data from DO spaces.",
 				Action: func(c *cli.Context) error {
 
 					endpoint := "sfo3.digitaloceanspaces.com"
@@ -297,6 +301,7 @@ func main() {
 			},
 			{
 				Name:  "hosts",
+				Usage: "List the hosts.",
 				Flags: []cli.Flag{nameFlag, ipFlag, privateFlag},
 				Action: func(c *cli.Context) error {
 					targets, err := GetTargetsWithFlags(c)
