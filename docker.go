@@ -35,6 +35,7 @@ func addDockerCmds(cmd []*cli.Command) []*cli.Command {
 		{
 			Name:    "update",
 			Aliases: []string{"pull"},
+			Usage:   "Pull the containers.",
 			Flags:   []cli.Flag{nameFlag, ipFlag, privateFlag},
 			Action: func(c *cli.Context) error {
 				targets, err := GetTargetsWithFlags(c)
