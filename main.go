@@ -316,6 +316,38 @@ func main() {
 					return nil
 				},
 			},
+			{
+				Name:  "deploy",
+				Usage: "Sync, pull, and restart the compose containers.",
+				Flags: []cli.Flag{nameFlag, ipFlag, privateFlag,
+					&cli.BoolFlag{
+						Name:    "recursive",
+						Aliases: []string{"r"},
+						Usage:   "Sync recursively like scp -r",
+					}},
+				Action: func(c *cli.Context) error {
+					targets, err := GetTargetsWithFlags(c)
+					if err != nil {
+						return err
+					}
+
+					fn := c.Args().First()
+					if fn == "" {
+						fn = "docker-compose.yml"
+					}
+
+					for _, t := range targets {
+						SyncFiles(t, fn, c.Bool("recursive"))
+					}
+
+					runDockerCmd(targets, []string{"docker", "compose", "pull"}, "")
+					runDockerCmd(targets, []string{"docker", "compose", "stop"}, "")
+					runDockerCmd(targets, []string{"docker", "compose", "up", "-d"}, "")
+					runDockerStatus(targets)
+
+					return nil
+				},
+			},
 		},
 	}
 
