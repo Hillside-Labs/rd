@@ -6,6 +6,7 @@ require (
 	github.com/ionrock/procs v0.0.0-20230108235056-4ba188ce3ead
 	github.com/minio/minio-go/v7 v7.0.68
 	github.com/urfave/cli/v2 v2.27.1
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (

@@ -14,6 +14,7 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/urfave/cli/v2"
+	"gopkg.in/yaml.v3"
 )
 
 type tfoutput struct {
@@ -40,9 +41,7 @@ func (h Host) String() string {
 	return fmt.Sprintf("%s:\t%s\t[%s]", h.Name, h.IP, h.PrivateIP)
 }
 
-// GetHosts runs a script to get the hosts. In our case it is looking
-// at the terraform output in the infra repo.
-func GetHosts() ([]Host, error) {
+func GetHostFromDOTerraform() ([]Host, error) {
 	cmd := exec.Command("terraform", "show", "-json")
 	cmd.Dir = "./infra"
 	out, err := cmd.Output()
@@ -69,6 +68,27 @@ func GetHosts() ([]Host, error) {
 	}
 
 	return hosts, nil
+}
+
+func GetHostsFromFile() ([]Host, error) {
+	out, err := os.ReadFile("hosts.yml")
+	if err != nil {
+		return nil, err
+	}
+
+	var hosts []Host
+	err = yaml.Unmarshal(out, &hosts)
+	return hosts, err
+}
+
+// GetHosts discovers the available hosts. We currently support a
+// hosts.yml file and the output from DO VM resources in terraform.
+func GetHosts() ([]Host, error) {
+	hosts, err := GetHostsFromFile()
+	if err != nil {
+		return GetHostFromDOTerraform()
+	}
+	return hosts, err
 }
 
 func GetTargets(name, ip, private string) ([]Host, error) {
